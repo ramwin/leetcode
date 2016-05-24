@@ -1,0 +1,7 @@
+*.pyc
+*.*~
+/log/*
+*~
+!/log/test
+*.swp
+test.db
