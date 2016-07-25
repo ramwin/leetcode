@@ -4,9 +4,9 @@
 
 class Solution(object):
     def getSum(self, a, b):
-        abin = bin(a)[2:]   # 101
-        bbin = bin(b)[2:]   # 10
-        self.max_len = max(len(abin), len(bbin))
+        astr = str(a)
+        bstr = str(b)
+        self.max_len = max(len(astr), len(bstr))
         self.abin = abin.zfill(self.max_len)
         self.bbin = bbin.zfill(self.max_len)
         return self.sum_bin()
