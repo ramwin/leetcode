@@ -48,8 +48,11 @@ class Solution(object):
                 if node.right:
                     next_list.append(node.right)
         else:
-            for node in reversed(previous_list):
+            length = len(previous_list)
+            for index in range(len(previous_list)):
+                node = previous_list[length-index-1]
                 results.append(node.val)
+                node = previous_list[index]
                 if node.left:
                     next_list.append(node.left)
                 if node.right:
@@ -57,11 +60,11 @@ class Solution(object):
         return results, next_list, not direction
 
 
-a = TreeNode(3)
-a.left = TreeNode(9)
-a.right = TreeNode(20)
-a.right.left = TreeNode(15)
-a.right.right = TreeNode(7)
+a = TreeNode(1)
+a.left = TreeNode(2)
+a.right = TreeNode(3)
+a.left.left = TreeNode(4)
+a.right.right = TreeNode(5)
 
 b = Solution()
 print(b.zigzagLevelOrder(a))
