@@ -10,6 +10,8 @@ import unittest
 
 class Solution(object):
 
+    def __init__(self):
+        self.cache = {}
     def is_palindrome(self, s):
         """判断一个字符串是不是回文"""
         return "".join(reversed(s)) == s
@@ -25,6 +27,8 @@ class Solution(object):
         # try:
         # if True:
         # print("获取字符串<%s>的所有可能" % s)
+        if s in self.cache:
+            return self.cache[s]
         if len(s) == 0:
             return [[],]
         if len(s) == 1:
@@ -42,6 +46,7 @@ class Solution(object):
         # print("字符串<%s>的所有可能有: " % s)
         # print("    ", end="")
         # print(result)
+        self.cache[s] = result
         return result
         # except Exception as e:
         # else:
