@@ -20,6 +20,52 @@ from collections import defaultdict
 class Solution(object):
 
     def isadjacent(self, word1, word2):
+        dif_cnt = 0
+        for a, b in zip(word1, word2):
+            if a != b:
+                dif_cnt += 1
+                if dif_cnt >= 2:
+                    return False
+        return dif_cnt
+        
+    def ladderLength(self, beginWord, endWord, wordlist):
+        print("起始word: %s" % beginWord)
+        print("终止word: %s" % endWord)
+        print("wordlist: %s" % wordlist)
+        self.ladder = defaultdict(set)
+        wordset = set(wordlist)
+        if endWord not in wordset:
+            return 0
+        # if beginWord in wordset:
+        #     return 1
+        wordset.add(beginWord)
+        depth = 1
+        margin_word_set = {beginWord}
+        next_margin_word_set = set()
+        while margin_word_set and wordset:
+            print("当前depth: %d" % depth)
+            print("当前margin: %s" % margin_word_set)
+            print("当前剩余word: %s" % wordset)
+            depth += 1
+            next_margin_word_set = set()
+            next_wordset = set()
+            for margin_word in margin_word_set:
+                for word in wordset:
+                    if self.isadjacent(word, margin_word):
+                        next_margin_word_set.add(word)
+                    else:
+                        next_wordset.add(word)
+            if endWord in next_margin_word_set:
+                return depth
+            margin_word_set = next_margin_word_set
+            wordset = next_wordset
+        return 0
+
+
+class Solution_slow(object):
+    # 速度太慢了。
+
+    def isadjacent(self, word1, word2):
         if "%s_%s" % (word1, word2) in self.not_adjacent or \
             "%s_%s" % (word2, word1) in self.not_adjacent:
             return False
