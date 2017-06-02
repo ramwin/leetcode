@@ -10,6 +10,12 @@ import unittest
 from collections import defaultdict
 
 '''
+    看了其他人的solution，和我区别在于他们不是查看所有的单词看他们是否是邻居，而是找出所有的邻居，然后看是否存在于wordlist。
+    他们的算法是 单词长度 * 字母个数（26)
+    我的算法是 单词长度 * 单词个数
+    所以应该反过来找
+'''
+'''
     depth_dict = {
         0: [endWord],
         1: [word1, word2],
