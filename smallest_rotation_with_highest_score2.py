@@ -17,10 +17,6 @@ k变小
 但是一旦k继续变小，导致 origin_index - index >= value 时，他就幸福了
 """
 
-
-
-
-
 class Item(object):
 
     def __init__(self, origin_index, value, length):
@@ -51,15 +47,15 @@ class Solution(object):
             if value <= 0:
                 # 不管k等于多少，都 value <= index
                 continue
-            # item = Item(index, value, length)
-            # lines[item.zero_to_one_k()] += 1
-            # lines[item.one_to_zero_k()] -= 1
-            lines[
-                (index + 1) % length
-            ] += 1
-            lines[
-                (index - value + 1) % length
-            ] -= 1
+            item = Item(index, value, length)
+            lines[item.zero_to_one_k()] += 1
+            lines[item.one_to_zero_k()] -= 1
+            # lines[
+            #     (index + 1) % length
+            # ] += 1
+            # lines[
+            #     (index - value + 1) % length
+            # ] -= 1
         current_max = lines[0]
         current_max_index = 0
         current = 0
