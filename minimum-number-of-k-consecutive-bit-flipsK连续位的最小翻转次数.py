@@ -1,5 +1,6 @@
 
-# 第一次
+from collections import deque
+# 第一次, 超时,K很大
 
 class Solution:
 
@@ -31,6 +32,36 @@ class Solution:
                 self.A[index] = 0
             else:
                 self.A[index] = 1
+
+
+# 第二次, 用一个列表来记录前面的反转次数
+
+class Solution:
+
+    def minKBitFlips(self, A, K) -> int:
+        self.A = A
+        self.current_index = 0
+        self.K = K
+        self.K_list = list(range(K))
+        self.total = 0
+        self.rotate_queues = deque()
+        final_index = len(A) - K
+
+        while True:
+            try:
+                self.left_rotate()
+            except ValueError:
+                return self.total
+
+    def left_rotate(self):
+        print(f"{self.A} rotate at {self.current_index}")
+        self.rotate_queues.append(self.current_index)
+        self.current_index = self.A.index(0, self.current_index+1)
+        print(f"索引走到了 {self.current_index}")
+        while self.rotate_queues and self.rotate_queues[0] + self.K < self.current_index:
+            self.rotate_queues.popleft()
+        print(f"{self.rotate_queues}")
+        self.total += 1
 
 
 for A, K, answer in [
