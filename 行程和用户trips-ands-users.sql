@@ -8,10 +8,16 @@ select COUNT(t.Id) c, t.status, t.Request_at Day from
     ) t GROUP BY t.status, Day as tmp;
 
 
-select * from tmp
-    left join
-        (select * from tmp where status='completed') tmp2 on tmp.Day = tmp2.Day
-    left join
-        (select * from   tmp where status='cancelled_by_driver') tmp3 on tmp.Day = tmp3.Day
-    left join (select * from tmp where status='cancelled_by_client') tmp4 on tmp.Day = tmp4.Day
-;
+    select 
+        tmp.day day,
+        completed.c completed,
+        cancelled_by_c.c cancelled_by_client,
+        cancelled_by_d.c cancelled_by_driver,
+        completed.c/(coalesce(completed.c, 0) + coalesce(cancelled_by_c.c, 0) + coalesce(cancelled_by_d.c, 0)) ratio
+    from tmp
+    left join tmp completed
+        on tmp.day=completed.day and completed.status='completed'
+    left join tmp cancelled_by_c
+        on tmp.day=cancelled_by_c.day and cancelled_by_c.status='cancelled_by_client'
+    left join tmp cancelled_by_d
+        on tmp.day=cancelled_by_d.day and cancelled_by_d.status='cancelled_by_driver';
