@@ -13,6 +13,11 @@ from typing import List
 # 执行用时： 3744 ms , 在所有 Python3 提交中击败了 10.81% 的用户
 # 内存消耗： 15.5 MB , 在所有 Python3 提交中击败了 71.99% 的用户
 
+# 删除calculated相关代码的话
+# 执行用时： 2888 ms , 在所有 Python3 提交中击败了 21.41% 的用户
+# 内存消耗： 15 MB , 在所有 Python3 提交中击败了 92.92% 的用户
+
+
 class RealSolution:
 
     def __init__(self, arr: List[int]):
@@ -32,8 +37,8 @@ class RealSolution:
                         return longest
                     return 0
                 start_1 = self.arr[start_1_index]
-                if (start_0, start_1) in self.calculated:
-                    continue
+                # if (start_0, start_1) in self.calculated:
+                #     continue
                 current_long = self.get_length(start_0, start_1)
                 if current_long > longest:
                     longest = current_long
@@ -48,9 +53,9 @@ class RealSolution:
             if prev + _next in self.nums:
                 result += 1
                 prev, _next = _next, prev + _next
-                self.calculated.add(
-                    (prev, _next)
-                )
+                # self.calculated.add(
+                #     (prev, _next)
+                # )
                 continue
             break
         return result
