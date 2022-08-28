@@ -19,6 +19,7 @@
 from decimal import Decimal
 from functools import lru_cache
 import logging
+from typing import List
 
 
 logger = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ class MySolution:
         self.house_list = HouseList(houses)
         self.k = k
 
-    @lru_cache
+    @lru_cache(maxsize=None)
     def get_result(self, start_index, end_index, cnt) -> int:
         """
         返回在houses[start: end]之间,放置cnt个邮筒, 所生成的距离最小的综合
@@ -103,9 +104,11 @@ class MySolution:
             min_result = Decimal("inf")
             for left_index, right_index in self.house_list.iter_start_end(start_index, end_index):
                 # 左边index是0的话, 最多只能给1个邮箱
-                for left_cnt in range(1, min(left_index + 2, cnt)):
+                for left_cnt in range(cnt - 1, 0, -1):
                     # 左边 houses[0: x] 放置left_cnt个邮筒
                     left_result = self.get_result(0, left_index + 1, left_cnt)
+                    if left_result >= min_result:
+                        break
                     # 右边 houses[x: ] 放置 self.k - left_cnt个邮筒
                     right_result = self.get_result(
                         right_index, end_index, cnt - left_cnt)
@@ -120,5 +123,8 @@ class MySolution:
 
 
 class Solution:
+    """兼容leetcode"""
+
     def minDistance(self, houses: List[int], k: int) -> int:
-        return MySolution(houses, k).get_result()
+        """返回最小距离"""
+        return MySolution(houses, k).get_result(0, len(houses), k)
