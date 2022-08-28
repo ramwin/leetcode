@@ -24,7 +24,7 @@ from typing import List
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 
 # 方案一
@@ -46,6 +46,7 @@ class HouseList:
         }
         self.length = len(self.houses)
 
+    @lru_cache(maxsize=None)
     def iter_start_end(self, start_index, end_index):
         """
         把房子列表[start_index:end_index]拆分成左右2个列表
@@ -58,9 +59,12 @@ class HouseList:
         ]
         """
         assert (end_index - start_index) >= 2
-        for i in range(start_index, end_index - 1):
-            yield [i, i+1]
+        return [
+            [i, i+1]
+            for i in range(start_index, end_index - 1)
+        ]
 
+    @lru_cache(maxsize=None)
     def get_total_distance(self, start_index, end_index):
         """
         返回 houses[start:end] 在 mail_box_position 放置一个邮筒时, 距离的求和
@@ -104,7 +108,14 @@ class MySolution:
             min_result = Decimal("inf")
             for left_index, right_index in self.house_list.iter_start_end(start_index, end_index):
                 # 左边index是0的话, 最多只能给1个邮箱
-                for left_cnt in range(cnt - 1, 0, -1):
+                left_total = left_index + 1 - start_index
+                right_total = end_index - start_index - left_total
+                left_max = min(cnt - 1, left_total)
+                left_min = max(
+                    cnt - right_total,
+                    1,
+                )
+                for left_cnt in range(left_max, left_min-1, -1):
                     # 左边 houses[0: x] 放置left_cnt个邮筒
                     left_result = self.get_result(0, left_index + 1, left_cnt)
                     if left_result >= min_result:
