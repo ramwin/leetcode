@@ -13,6 +13,12 @@
 """
 
 
+import logging
+
+
+LOGGER = logging.getLogger(__name__)
+
+
 class Point:
     """坐标"""
 
@@ -40,24 +46,74 @@ class Pool():
 
     def __init__(self):
         self.water_point_set = set()  # 池塘要记录有哪些水域
+        self.current_edges = set()  # BFS边缘
 
-    def add_point(self, point: WaterPoint):
+    def add_point(self, point: WaterPoint, init=False):
         """把某个水域添加到池塘"""
         point.pool = self
         self.water_point_set.add(point)
+        if init:
+            self.current_edges = {point}
 
     @property
     def size(self):
         """返回池塘的大小"""
         return len(self.water_point_set)
 
-    def add_all_points(self):
-        """把池塘内所有的水域添加进来"""
-        raise NotImplementedError
+    def add_all_points(self, matrix):
+        """
+        把池塘内所有的水域添加进来
+        BFS 寻找边缘水域的相邻水域是否存在.
+            如果存在, 当作新的边缘. 继续寻找
+        """
+        new_edges = set()
+        for water_point in self.current_edges:
+            for neighbour in self.get_nearby_water_points(
+                    matrix, water_point.x, water_point.y):
+                if neighbour.pool is not None:
+                    LOGGER.info("这个水域已经属于当前池塘了,不用继续寻找")
+                    continue
+                self.add_point(neighbour)
+                new_edges.add(neighbour)
+        if new_edges:
+            self.current_edges = new_edges
+            self.add_all_points(matrix)
+
+    @staticmethod
+    def get_nearby_water_points(matrix, x, y):
+        """找到地图matrix坐标x,y附近的所有水域"""
+        results = []
+        max_x = len(matrix) - 1
+        min_x = 0
+        max_y = len(matrix[0]) - 1
+        min_y = 0
+        if x > min_x:
+            results.append(matrix[x-1][y])
+        if y > min_y:
+            results.append(matrix[x][y-1])
+        if x < max_x:
+            results.append(matrix[x+1][y])
+        if y < max_y:
+            results.append(matrix[x][y+1])
+        if (x < max_x) and (y < max_y):
+            results.append(matrix[x+1][y+1])
+        if (x > min_x) and (y > min_y):
+            results.append(matrix[x-1][y-1])
+        if (x < max_x) and (y > min_y):
+            results.append(matrix[x+1][y-1])
+        if (x > min_x) and (y < max_y):
+            results.append(matrix[x-1][y+1])
+        return [
+            i
+            for i in results
+            if isinstance(i, WaterPoint)
+        ]
 
 
 class Solution1:
     """
+    执行用时： 1072 ms , 在所有 Python3 提交中击败了 5.04% 的用户
+    内存消耗： 76.8 MB , 在所有 Python3 提交中击败了 5.04% 的用户
     解法: 遍历所有的坐标.
     如果该坐标是水域(0), 就判断:
         1. 如果已经属于某个池塘了,就跳过
@@ -71,7 +127,24 @@ class Solution1:
 
     def create_matrix_from_map(self, maps):
         """把数字的二位数组, 变成Point的二位数组"""
-        raise NotImplementedError
+        matrix = []
+        for x, row in enumerate(maps):
+            matrix_row = []
+            for y, point_value in enumerate(row):
+                point = self.create_point(
+                    point_value,
+                    x, y
+                )
+                matrix_row.append(point)
+            matrix.append(matrix_row)
+        return matrix
+
+    @staticmethod
+    def create_point(point_value, x, y):
+        """根据数字和x,y创建点"""
+        if point_value == 0:
+            return WaterPoint(x, y)
+        return Point(x, y)
 
     def get_pools_size(self):
         """返回所有池塘的列表"""
@@ -81,8 +154,8 @@ class Solution1:
                     if point.pool is not None:
                         continue
                     pool = Pool()
-                    pool.add_point(point)
-                    pool.add_all_points()
+                    pool.add_point(point, init=True)
+                    pool.add_all_points(self.matrix)
                     self.pools.append(pool)
 
         results = []
@@ -90,3 +163,8 @@ class Solution1:
             results.append(pool.size)
         results.sort()
         return results
+
+
+class Solution:
+    def pondSizes(self, land: List[List[int]]) -> List[int]:
+        return Solution1(land).get_pools_size()
