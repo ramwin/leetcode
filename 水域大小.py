@@ -21,6 +21,7 @@ LOGGER = logging.getLogger(__name__)
 
 class Point:
     """坐标"""
+    type = 1
 
     def __init__(self, x, y):
         self.x = x
@@ -35,6 +36,7 @@ class Point:
 
 class WaterPoint(Point):
     """水域"""
+    type = 0
 
     def __init__(self, x, y):
         super().__init__(x, y)
@@ -45,20 +47,23 @@ class Pool():
     """池塘"""
 
     def __init__(self):
-        self.water_point_set = set()  # 池塘要记录有哪些水域
+        # self.water_point_set = set()  # 池塘要记录有哪些水域
+        # 第一次优化, 移除不需要的water_point_set, 1072ms => 932ms
         self.current_edges = set()  # BFS边缘
+        self.size = 0
 
     def add_point(self, point: WaterPoint, init=False):
         """把某个水域添加到池塘"""
         point.pool = self
-        self.water_point_set.add(point)
+        # self.water_point_set.add(point)
+        self.size += 1
         if init:
             self.current_edges = {point}
 
-    @property
-    def size(self):
-        """返回池塘的大小"""
-        return len(self.water_point_set)
+    # @property
+    # def size(self):
+    #     """返回池塘的大小"""
+    #     return len(self.water_point_set)
 
     def add_all_points(self, matrix):
         """
@@ -68,7 +73,8 @@ class Pool():
         """
         new_edges = set()
         for water_point in self.current_edges:
-            for neighbour in self.get_nearby_water_points(
+            # for neighbour in self.get_nearby_water_points(
+            for neighbour in self.get_nearby_no_pool_water_points(
                     matrix, water_point.x, water_point.y):
                 if neighbour.pool is not None:
                     LOGGER.info("这个水域已经属于当前池塘了,不用继续寻找")
@@ -80,7 +86,7 @@ class Pool():
             self.add_all_points(matrix)
 
     @staticmethod
-    def get_nearby_water_points(matrix, x, y):
+    def get_nearby_no_pool_water_points(matrix, x, y):
         """找到地图matrix坐标x,y附近的所有水域"""
         results = []
         max_x = len(matrix) - 1
@@ -88,26 +94,38 @@ class Pool():
         max_y = len(matrix[0]) - 1
         min_y = 0
         if x > min_x:
-            results.append(matrix[x-1][y])
+            point = matrix[x-1][y]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
         if y > min_y:
-            results.append(matrix[x][y-1])
+            point = matrix[x][y-1]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
         if x < max_x:
-            results.append(matrix[x+1][y])
+            point = matrix[x+1][y]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
         if y < max_y:
-            results.append(matrix[x][y+1])
+            point = matrix[x][y+1]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
         if (x < max_x) and (y < max_y):
-            results.append(matrix[x+1][y+1])
+            point = matrix[x+1][y+1]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
         if (x > min_x) and (y > min_y):
-            results.append(matrix[x-1][y-1])
+            point = matrix[x-1][y-1]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
         if (x < max_x) and (y > min_y):
-            results.append(matrix[x+1][y-1])
+            point = matrix[x+1][y-1]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
         if (x > min_x) and (y < max_y):
-            results.append(matrix[x-1][y+1])
-        return [
-            i
-            for i in results
-            if isinstance(i, WaterPoint)
-        ]
+            point = matrix[x-1][y+1]
+            if point.type == 0 and point.pool is None:
+                results.append(point)
+        return results
 
 
 class Solution1:
@@ -166,5 +184,5 @@ class Solution1:
 
 
 class Solution:
-    def pondSizes(self, land: List[List[int]]) -> List[int]:
+    def pondSizes(self, land):
         return Solution1(land).get_pools_size()
