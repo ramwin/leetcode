@@ -33,12 +33,16 @@ class Solution:
         """
         垂直翻转子矩阵的行顺序（原地修改，O(1) 额外空间）
         """
-        # 垂直翻转子矩阵：交换第 i 行和第 k-1-i 行
-        for i in range(k // 2):
-            for j in range(k):
-                # 交换位置 (x + i, y + j) 和 (x + k - 1 - i, y + j) 的元素
-                grid[x + i][y + j], grid[x + k - 1 - i][y + j] = \
-                    grid[x + k - 1 - i][y + j], grid[x + i][y + j]
+        # 子矩阵的列范围
+        left_col, right_col = y, y + k - 1
+        
+        # 垂直翻转：交换上半部分行切片和对应的下半部分行切片
+        for offset in range(k // 2):
+            top_row = x + offset
+            bottom_row = x + k - 1 - offset
+            # 直接交换整行切片
+            grid[top_row][left_col:right_col + 1], grid[bottom_row][left_col:right_col + 1] = \
+                grid[bottom_row][left_col:right_col + 1], grid[top_row][left_col:right_col + 1]
         
         return grid
 
