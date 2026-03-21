@@ -33,16 +33,35 @@ class Solution:
         """
         垂直翻转子矩阵的行顺序（原地修改，O(1) 额外空间）
         """
-        # 子矩阵的列范围
-        left_col, right_col = y, y + k - 1
+        n_cols = len(grid[0]) if grid else 0
         
-        # 垂直翻转：交换上半部分行切片和对应的下半部分行切片
-        for offset in range(k // 2):
-            top_row = x + offset
-            bottom_row = x + k - 1 - offset
-            # 直接交换整行切片
-            grid[top_row][left_col:right_col + 1], grid[bottom_row][left_col:right_col + 1] = \
-                grid[bottom_row][left_col:right_col + 1], grid[top_row][left_col:right_col + 1]
+        # 子矩阵的列范围
+        left_col, right_col = y, y + k
+        
+        # 策略选择：k 较大时先交换整行再修复，k 较小时直接逐元素交换
+        if k > n_cols // 2:
+            # 策略1：先交换整行，再修复不在子矩阵内的列
+            for offset in range(k // 2):
+                top_row = x + offset
+                bottom_row = x + k - 1 - offset
+                # 先交换整行（Python 层面的高效操作）
+                grid[top_row], grid[bottom_row] = grid[bottom_row], grid[top_row]
+                # 修复左侧不在子矩阵内的列
+                for col in range(left_col):
+                    grid[top_row][col], grid[bottom_row][col] = \
+                        grid[bottom_row][col], grid[top_row][col]
+                # 修复右侧不在子矩阵内的列
+                for col in range(right_col, n_cols):
+                    grid[top_row][col], grid[bottom_row][col] = \
+                        grid[bottom_row][col], grid[top_row][col]
+        else:
+            # 策略2：k 较小，直接逐元素交换子矩阵内的元素
+            for offset in range(k // 2):
+                top_row = x + offset
+                bottom_row = x + k - 1 - offset
+                for col in range(left_col, right_col):
+                    grid[top_row][col], grid[bottom_row][col] = \
+                        grid[bottom_row][col], grid[top_row][col]
         
         return grid
 
