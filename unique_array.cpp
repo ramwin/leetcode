@@ -1,30 +1,40 @@
+// 超过了100%的人
 #include <stdio.h>
 #include <iostream>
 #include <map>
 
 using namespace std;
 
+int last_seen_position[256];
+
 
 class Solution {
 public:
     int lengthOfLongestSubstring(string s) {
+      for (int i=0; i<256; i++) {
+        last_seen_position[i] = -1;
+      };
       if (s.size() == 1) {
         return 1;
       }
       int max_length = 0;
       int start = 0;
-      int previous_index = 0;
+      int previous_index;
       char current;
       // cout << "start" << start;
-      map<char, unsigned int> last_seen_position;
+      //
       for (int index=0; index<s.size(); index++) {
         current = s[index];
         // cout << "查看字母" << current << endl;
-        if (last_seen_position.find(current) == last_seen_position.end()) {
-          previous_index = -1;
-        } else {
-          previous_index = last_seen_position[current];
-        }
+        // auto find = last_seen_position.find(current);
+        // find = last_seen_position.find(current);
+        // cout << find -> first << endl;
+        // if (find == last_seen_position.end()) {
+        //   previous_index = -1;
+        // } else {
+        //   previous_index = find -> second;
+        // }
+        previous_index = last_seen_position[current];
         last_seen_position[current] = index;
         if (previous_index >= start) {
           start = previous_index + 1;
